@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <title>CanvasAPI Test</title>
+    <script src="CanvasAPI.js"></script>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <script>
+      window.flappy = {
+        frames: [0, 1, 2, 1],
+        index: 0,
+        vely: 0,
+        jump: -10,
+        gravity: 0.5,
+      };
+
+      let rlindex = 0.1;
+
+      const perfectFrameTime = 1000 / 60;
+      let deltaTime = 0;
+      let lastTimestamp = 0;
+      window.assets = {};
+
+      const canvas = new CanvasAPI(document.getElementById("canvas"));
+      canvas.ctx.imageSmoothingEnabled = false;
+      canvas.vsize.w = 288;
+      canvas.vsize.h = 512;
+
+      const objTest = new Object(canvas);
+      const flappy_1 = new Object(canvas);
+
+      function init(assetsdata) {
+        assets = assetsdata;
+
+        flappy_1.type = "img";
+        flappy_1.imgdata = [
+          assets["res/sprites/yellowbird-downflap.png"],
+          assets["res/sprites/yellowbird-midflap.png"],
+          assets["res/sprites/yellowbird-upflap.png"],
+        ];
+        flappy_1.width = 34;
+        flappy_1.height = 24;
+        flappy_1.origin = "center";
+        flappy_1.pos.x = 16;
+        flappy_1.pos.y = 16;
+        flappy_1.pos.rot = 45;
+        flappy_1.show = true;
+
+        frame();
+      }
+
+      async function frame(timestamp) {
+        requestAnimationFrame(frame);
+        deltaTime = (timestamp - lastTimestamp) / perfectFrameTime;
+        deltaTime = ~~deltaTime
+        lastTimestamp = timestamp;
+
+        rlindex = (rlindex + 0.4 * deltaTime)
+
+        if (rlindex > 4) {
+          rlindex = 0;
+        }
+
+        flappy.index = (Math.floor(rlindex) % flappy.frames.length); // Incrementa e cicla l'indice
+        flappy_1.frame = flappy.frames[flappy.index];
+
+        if (canvas.keys["Space"] || canvas.keys["Touch"]) {
+            flappy.vely = flappy.jump;
+        }
+
+        flappy_1.pos.y += flappy.vely * deltaTime;
+
+        flappy.vely += flappy.gravity * deltaTime;
+
+        canvas.render([flappy_1]);
+      }
+
+      const imagePaths = [
+        "res/sprites/yellowbird-downflap.png",
+        "res/sprites/yellowbird-midflap.png",
+        "res/sprites/yellowbird-upflap.png",
+      ];
+      CanvasAPI.loadAssets(imagePaths, function (loadedAssets) {
+        init(loadedAssets);
+      });
+    </script>
+  </body>
+</html>
